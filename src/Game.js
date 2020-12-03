@@ -28,17 +28,22 @@ export default class Game
 		let human		= this.players[0];
 		let computer	= this.players[1];
 		
+		human.name		= "Player";
+		computer.name	= "Computer";
+		
 		computer.ai		= new AI(this, computer, human);
 	}
 	
 	initElement()
 	{
-		this.$element = $("<table class='tic-tac-toe'></table>");
+		this.$element	= $("<div class='tic-tac-toe'></div>");
+		
+		this.$table		= $("<table class='tic-tac-toe'></table>");
 		
 		for(let y = 0; y < Board.SIZE; y++)
 		{
 			let $tr = $("<tr></tr>");
-			this.$element.append($tr);
+			this.$table.append($tr);
 			
 			for(let x = 0; x < Board.SIZE; x++)
 			{
@@ -53,7 +58,12 @@ export default class Game
 			}
 		}
 		
-		this.$element.on("click", "td", (event) => this.onCellClicked(event));
+		this.$element.append(this.$table);
+		this.$table.on("click", "td", (event) => this.onCellClicked(event));
+		
+		this.$reset = $("<button>Reset</button>");
+		this.$reset.on("click", (event) => this.onReset(event));
+		this.$element.append(this.$reset);
 	}
 	
 	updateElement()
@@ -61,7 +71,7 @@ export default class Game
 		for(let x = 0; x < Board.SIZE; x++)
 			for(let y = 0; y < Board.SIZE; y++)
 			{
-				let cell	= this.board.cells[x][y]
+				let cell	= this.board.cells[x][y];
 				let $td		= cell.$element;
 				
 				$td.attr("data-state", cell.state);
@@ -85,24 +95,47 @@ export default class Game
 	
 	start()
 	{
+		this.state = Game.STATE_PLAYING;
+		
+		this.board.reset();
+		this.updateElement();
+		
 		this.currentPlayer = this.players[0];
 		this.startTurn();
 	}
 	
 	startTurn()
 	{
-		this.$element.removeClass("expecting-human-input");
+		this.$table.removeClass("expecting-human-input");
 		
 		if(this.currentPlayer.ai)
 			this.currentPlayer.ai.move();
 		else
-			this.$element.addClass("expecting-human-input");
+			this.$table.addClass("expecting-human-input");
 	}
 	
 	endTurn()
 	{
-		let currentPlayerIndex = this.players.indexOf(this.currentPlayer);
+		this.updateElement();
 		
+		if(this.board.isPlayerVictorious(this.currentPlayer))
+		{
+			this.state = Game.STATE_OVER;
+			
+			alert(this.currentPlayer.name + " wins");
+			
+			return;
+		}
+		else if(this.board.isFull())
+		{
+			this.state = Game.STATE_OVER;
+			
+			alert("Tied");
+			
+			return;
+		}
+		
+		let currentPlayerIndex = this.players.indexOf(this.currentPlayer);
 		let nextPlayerIndex = (currentPlayerIndex + 1) % this.players.length;
 		
 		this.currentPlayer = this.players[nextPlayerIndex];
@@ -112,6 +145,9 @@ export default class Game
 	
 	onCellClicked(event)
 	{
+		if(this.state == Game.STATE_OVER)
+			return;	// NB: Game is over, do nothing
+		
 		if(this.currentPlayer.ai)
 			return;	// NB: Ignore user input during AI turn
 		
@@ -119,10 +155,19 @@ export default class Game
 		let x		= $cell.attr("data-x");
 		let y		= $cell.attr("data-y");
 		
-		this.board.cells[x][y].state = this.currentPlayer.figure;
+		if(this.board.cells[x][y].state != Cell.STATE_EMPTY)
+			return; // NB: Already filled
 		
-		this.updateElement();
+		this.board.cells[x][y].state = this.currentPlayer.figure;
 		
 		this.endTurn();
 	}
+	
+	onReset(event)
+	{
+		this.start();
+	}
 }
+
+Game.STATE_PLAYING			= "playing";
+Game.STATE_OVER				= "over;"

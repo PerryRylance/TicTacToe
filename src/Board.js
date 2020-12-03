@@ -18,6 +18,13 @@ export default class Board
 		}
 	}
 	
+	reset()
+	{
+		for(let x = 0; x < Board.SIZE; x++)
+			for(let y = 0; y < Board.SIZE; y++)
+				this.cells[x][y].state = Cell.STATE_EMPTY;
+	}
+	
 	clone()
 	{
 		let result = new Board();
@@ -41,6 +48,42 @@ export default class Board
 				
 				if(cell.state == Cell.STATE_EMPTY)
 					result.push(cell);
+			}
+		
+		return result;
+	}
+	
+	getNumWaysToWin(player)
+	{
+		let result			= 0;
+		let cells			= this.getEmptyCells();
+		
+		cells.forEach((cell) => {
+			
+			let prediction	= this.clone();
+			prediction.cells[cell.x][cell.y].state = player.figure;
+			
+			if(prediction.isPlayerVictorious(player))
+				result++;
+			
+		});
+		
+		return result;
+	}
+	
+	getTwoInARow(player)
+	{
+		let result		= 0;
+		
+		for(let x = 0; x < Board.SIZE - 1; x++)
+			for(let y = 0; y < Board.SIZE - 1; y++)
+			{
+				// NB: Don't count diagonals
+				if(this.cells[x][y].state == player.figure && (
+						this.cells[x + 1][y].state	== player.figure ||
+						this.cells[x][y + 1].state	== player.figure
+					))
+					result++;
 			}
 		
 		return result;
@@ -90,7 +133,7 @@ export default class Board
 		winFlag = true;
 		for(let i = 0; i < Board.SIZE; i++)
 		{
-			if(this.cells[i][i] != player.figure)
+			if(this.cells[i][i].state != player.figure)
 			{
 				winFlag = false;
 				break;
@@ -100,9 +143,10 @@ export default class Board
 		if(winFlag)
 			return true;
 		
+		winFlag = true;
 		for(let i = 0; i < Board.SIZE; i++)
 		{
-			if(this.cells[Board.SIZE - 1 - i][i] != player.figure)
+			if(this.cells[Board.SIZE - 1 - i][i].state != player.figure)
 			{
 				winFlag = false;
 				break;
@@ -113,6 +157,11 @@ export default class Board
 			return true;
 		
 		return false;
+	}
+	
+	isFull()
+	{
+		return this.getEmptyCells().length == 0;
 	}
 }
 
