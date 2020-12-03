@@ -1,6 +1,7 @@
 import Cell from "./Cell.js";
 import Board from "./Board.js";
 import Player from "./Player.js";
+import AI from "./AI.js";
 
 /**
  * The Game module handles representing the board state, player turn logic, and game state.
@@ -23,6 +24,11 @@ export default class Game
 			new Player(Cell.STATE_CROSS),
 			new Player(Cell.STATE_NAUGHT)
 		];
+		
+		let human		= this.players[0];
+		let computer	= this.players[1];
+		
+		computer.ai		= new AI(this, computer, human);
 	}
 	
 	initElement()

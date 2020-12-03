@@ -15,11 +15,6 @@ export default class Player
 				break;
 		}
 		
-		this._figure = figure;
-	}
-	
-	get figure()
-	{
-		return this._figure;
+		this.figure = figure;
 	}
 }

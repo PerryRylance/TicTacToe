@@ -3,9 +3,11 @@
  */
 export default class Cell
 {
-	constructor()
+	constructor(x, y)
 	{
 		this.state		= Cell.STATE_EMPTY;
+		this.x			= x;
+		this.y			= y;
 	}
 }
 
