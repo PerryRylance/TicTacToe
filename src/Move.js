@@ -53,6 +53,8 @@ export default class Move
 		
 		predictedWaysToWin		= prediction.getNumWaysToWin(this.player);
 		
+		console.log("Predicted that player", this.player.name, "would have", predictedWaysToWin, "ways to win after moving at", this.x, this.y);
+		
 		return predictedWaysToWin == 2 && currentWaysToWin < 2;
 	}
 	
@@ -120,8 +122,6 @@ export default class Move
 		
 		if(prediction.getTwoInARow(this.player) > currentTwoInARow)
 		{
-			return true;
-			
 			// As long as it doesn't result in them creating a fork.
 			possibleOpponentForkMoves = this.opponent.getPossibleMoves(prediction, this.player);
 			
