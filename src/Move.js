@@ -127,6 +127,8 @@ export default class Move
 			
 			for(let i = 0; i < possibleOpponentForkMoves.length; i++)
 			{
+				opponentMove = possibleOpponentForkMoves[i];
+				
 				if(opponentMove.isForking())
 					return false;
 			}
