@@ -1,6 +1,7 @@
 table.tic-tac-toe
 {
 	border-collapse: collapse;
+	margin: 1em auto;
 }
 
 table.tic-tac-toe *
@@ -58,4 +59,100 @@ table.tic-tac-toe td[data-state="o"]
 table.tic-tac-toe td[data-state="x"]
 {
 	color: red;
+}
+
+html, body,
+	ul#screens,
+	ul#screens > li
+{
+	margin: 0;
+	padding: 0;
+}
+
+ul#screens
+{
+	list-style: none;
+}
+
+ul#screens > li
+{
+	border: 1px solid red;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+#tic-tac-toe form .figure
+{
+	display: block;
+	font-size: 64px;
+	font-weight: bold;
+}
+
+#tic-tac-toe .figure.naught
+{
+	color: blue;
+}
+
+#tic-tac-toe .figure.cross
+{
+	color: red;
+}
+
+#tic-tac-toe legend.player-select
+{
+	display: flex;
+	justify-content: center;
+}
+
+#tic-tac-toe legend.player-select label
+{
+	padding: 1em;
+}
+
+#tic-tac-toe select
+{
+	box-shadow:inset 0px -3px 7px 0px #29bbff;
+	background:linear-gradient(to bottom, #2dabf9 5%, #0688fa 100%);
+	background-color:#2dabf9;
+	border-radius:3px;
+	border:1px solid #0b0e07;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:15px;
+	padding:9px 23px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #263666;
+}
+
+#tic-tac-toe button
+{
+	box-shadow:inset 0px 1px 0px 0px #a4e271;
+	background:linear-gradient(to bottom, #89c403 5%, #77a809 100%);
+	background-color:#89c403;
+	border-radius:6px;
+	border:1px solid #74b807;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:15px;
+	font-weight:bold;
+	padding:6px 24px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #528009;
+	margin: 1em;
+}
+
+#tic-tac-toe button:hover
+{
+	background:linear-gradient(to bottom, #77a809 5%, #89c403 100%);
+	background-color:#77a809;
+}
+
+#tic-tac-toe button:active
+{
+	position:relative;
+	top:1px;
 }

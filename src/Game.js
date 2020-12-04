@@ -1,7 +1,8 @@
 import Cell from "./Cell.js";
 import Board from "./Board.js";
 import Player from "./Player.js";
-import AI from "./AI.js";
+import AINewellAndSimon from "./AINewellAndSimon.js";
+import AIMinimax from "./AIMinimax.js";
 
 /**
  * The Game module handles representing the board state, player turn logic, and game state.
@@ -20,18 +21,20 @@ export default class Game
 	
 	initPlayers()
 	{
+		let option;
+		
 		this.players = [
 			new Player(Cell.STATE_CROSS),
 			new Player(Cell.STATE_NAUGHT)
 		];
 		
-		let human		= this.players[0];
-		let computer	= this.players[1];
+		option = $("select[name='player-1'] option:selected");
+		this.players[0].name	= option.text();
+		this.players[0].ai		= this.getAIFromOptionValue(option.val(), this.players[0], this.players[1]);
 		
-		human.name		= "Player";
-		computer.name	= "Computer";
-		
-		computer.ai		= new AI(this, computer, human);
+		option = $("select[name='player-2'] option:selected");
+		this.players[1].name	= option.text();
+		this.players[1].ai		= this.getAIFromOptionValue(option.val(), this.players[1], this.players[0]);
 	}
 	
 	initElement()
@@ -61,9 +64,34 @@ export default class Game
 		this.$element.append(this.$table);
 		this.$table.on("click", "td", (event) => this.onCellClicked(event));
 		
+		this.$status = $("<div class='status'></div>");
+		this.$element.append(this.$status);
+		
 		this.$reset = $("<button>Reset</button>");
 		this.$reset.on("click", (event) => this.onReset(event));
 		this.$element.append(this.$reset);
+		
+		this.$play = $("button.play");
+		this.$play.on("click", (event) => this.onPlay(event));
+		
+		this.status("Ready");
+	}
+	
+	getAIFromOptionValue(value, player, opponent)
+	{
+		switch(value)
+		{
+			case "ai-newell-and-simon":
+				return new AINewellAndSimon(this, player, opponent);
+				break;
+			
+			case "ai-minimax":
+				return new AIMinimax(this, player, opponent);
+				break;
+			
+			default:
+				break;
+		}
 	}
 	
 	updateElement()
@@ -74,16 +102,19 @@ export default class Game
 				let cell	= this.board.cells[x][y];
 				let $td		= cell.$element;
 				
+				if($td.attr("data-state") == cell.state)
+					continue;
+				
 				$td.attr("data-state", cell.state);
 				
 				switch(cell.state)
 				{
 					case Cell.STATE_NAUGHT:
-						$td.html("&#9675;");
+						$td.html("<span class='animate__bounceIn'>&#9675;");
 						break;
 					
 					case Cell.STATE_CROSS:
-						$td.html("&#215;");
+						$td.html("<span class='animate__fadeIn'>&#215;</span>");
 						break;
 					
 					default:
@@ -143,6 +174,11 @@ export default class Game
 		this.startTurn();
 	}
 	
+	status(message)
+	{
+		
+	}
+	
 	onCellClicked(event)
 	{
 		if(this.state == Game.STATE_OVER)
@@ -165,6 +201,12 @@ export default class Game
 	
 	onReset(event)
 	{
+		this.start();
+	}
+	
+	onPlay(event)
+	{
+		this.initPlayers();
 		this.start();
 	}
 }
