@@ -74,6 +74,13 @@ export default class Game
 		this.$play = $("button.play");
 		this.$play.on("click", (event) => this.onPlay(event));
 		
+		this.$delay = $("input[name='delay']");
+		
+		$("#advanced-settings").hide();
+		$("#toggle-advanced-settings").on("click", (event) => {
+			$("#advanced-settings").show();
+		});
+		
 		this.status("Ready");
 	}
 	
@@ -96,6 +103,9 @@ export default class Game
 	
 	updateElement()
 	{
+		let $span;
+		let delay = this.$delay.val();
+		
 		for(let x = 0; x < Board.SIZE; x++)
 			for(let y = 0; y < Board.SIZE; y++)
 			{
@@ -110,11 +120,25 @@ export default class Game
 				switch(cell.state)
 				{
 					case Cell.STATE_NAUGHT:
-						$td.html("<span class='animate__bounceIn'>&#9675;");
+					
+						$span = $("<span>&#9675;</span>");
+						
+						if(delay > 100)
+							$span.addClass("animate__bounceIn");
+							
+						$td.html($span);
+						
 						break;
 					
 					case Cell.STATE_CROSS:
-						$td.html("<span class='animate__fadeIn'>&#215;</span>");
+					
+						$span = $("<span>&#215;</span>");
+					
+						if(delay > 100)
+							$span.addClass("animate__bounceIn");
+					
+						$td.html($span);
+						
 						break;
 					
 					default:
@@ -126,7 +150,10 @@ export default class Game
 	
 	start()
 	{
+		this.benchmarkGameCount++;
+		
 		this.state = Game.STATE_PLAYING;
+		this.status("Game on!");
 		
 		this.board.reset();
 		this.updateElement();
@@ -137,10 +164,19 @@ export default class Game
 	
 	startTurn()
 	{
+		let delay = this.$delay.val();
+		
 		this.$table.removeClass("expecting-human-input");
 		
 		if(this.currentPlayer.ai)
-			this.currentPlayer.ai.move();
+		{
+			if(delay == 0)
+				this.currentPlayer.ai.move();
+			else
+				setTimeout(() => {
+					this.currentPlayer.ai.move();
+				}, delay);
+		}
 		else
 			this.$table.addClass("expecting-human-input");
 	}
@@ -151,17 +187,15 @@ export default class Game
 		
 		if(this.board.isPlayerVictorious(this.currentPlayer))
 		{
-			this.state = Game.STATE_OVER;
-			
-			alert(this.currentPlayer.name + " wins");
+			this.status(this.currentPlayer.name + " wins");
+			this.endGame();
 			
 			return;
 		}
 		else if(this.board.isFull())
 		{
-			this.state = Game.STATE_OVER;
-			
-			alert("Tied");
+			this.status("Tied");
+			this.endGame();
 			
 			return;
 		}
@@ -174,9 +208,31 @@ export default class Game
 		this.startTurn();
 	}
 	
+	endGame()
+	{
+		this.state = Game.STATE_OVER;
+		
+		if($("input[name='benchmark']").prop("checked"))
+			setTimeout(() => {
+				this.start();
+			}, 0);
+	}
+	
 	status(message)
 	{
+		if($("input[name='benchmark']").prop("checked"))
+		{
+			let now				= new Date();
+			let delta			= now.getTime() - this.benchmarkStartTime;
+			let seconds			= delta / 1000;
+			let gamesPerSecond	= this.benchmarkGameCount / seconds;
+			
+			this.$status.html(Math.round(gamesPerSecond) + " games per second");
+			
+			return;
+		}
 		
+		this.$status.html(message);
 	}
 	
 	onCellClicked(event)
@@ -206,6 +262,12 @@ export default class Game
 	
 	onPlay(event)
 	{
+		if($("input[name='benchmark']").prop("checked"))
+		{
+			this.benchmarkStartTime		= new Date().getTime();
+			this.benchmarkGameCount		= 0;
+		}
+		
 		this.initPlayers();
 		this.start();
 	}
