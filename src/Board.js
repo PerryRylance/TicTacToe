@@ -81,7 +81,8 @@ export default class Board
 				// NB: Don't count diagonals
 				if(this.cells[x][y].state == player.figure && (
 						this.cells[x + 1][y].state	== player.figure ||
-						this.cells[x][y + 1].state	== player.figure
+						this.cells[x][y + 1].state	== player.figure ||
+						this.cells[x + 1][y + 1].state	== player.figure
 					))
 					result++;
 			}
@@ -162,6 +163,21 @@ export default class Board
 	isFull()
 	{
 		return this.getEmptyCells().length == 0;
+	}
+	
+	log()
+	{
+		let str = "";
+		
+		for(let y = 0; y < Board.SIZE; y++)
+		{
+			for(let x = 0; x < Board.SIZE; x++)
+				str += this.cells[x][y].state;
+			
+			str += "\r\n";
+		}
+		
+		// console.log(str);
 	}
 }
 

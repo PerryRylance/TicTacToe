@@ -29,11 +29,11 @@ export default class Game
 		];
 		
 		option = $("select[name='player-1'] option:selected");
-		this.players[0].name	= option.text();
+		this.players[0].name	= option.text() + " (" + this.players[0].figure + ")";
 		this.players[0].ai		= this.getAIFromOptionValue(option.val(), this.players[0], this.players[1]);
 		
 		option = $("select[name='player-2'] option:selected");
-		this.players[1].name	= option.text();
+		this.players[1].name	= option.text() + " (" + this.players[1].figure + ")";
 		this.players[1].ai		= this.getAIFromOptionValue(option.val(), this.players[1], this.players[0]);
 	}
 	
@@ -150,6 +150,7 @@ export default class Game
 	
 	start()
 	{
+		this.currentTurn = 1;
 		this.benchmarkGameCount++;
 		
 		this.state = Game.STATE_PLAYING;
@@ -205,6 +206,8 @@ export default class Game
 		
 		this.currentPlayer = this.players[nextPlayerIndex];
 		
+		this.currentTurn++;
+		
 		this.startTurn();
 	}
 	
@@ -229,10 +232,14 @@ export default class Game
 			
 			this.$status.html(Math.round(gamesPerSecond) + " games per second");
 			
+			console.log(message);
+			
 			return;
 		}
 		
 		this.$status.html(message);
+		
+		
 	}
 	
 	onCellClicked(event)

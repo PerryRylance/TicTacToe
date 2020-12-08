@@ -53,7 +53,7 @@ export default class Move
 		
 		predictedWaysToWin		= prediction.getNumWaysToWin(this.player);
 		
-		console.log("Predicted that player", this.player.name, "would have", predictedWaysToWin, "ways to win after moving at", this.x, this.y);
+		// console.log("Predicted that player", this.player.name, "would have", predictedWaysToWin, "ways to win after moving at", this.x, this.y);
 		
 		return predictedWaysToWin == 2 && currentWaysToWin < 2;
 	}
@@ -77,6 +77,7 @@ export default class Move
 		
 		let prediction, opponentMove;
 		let possibleOpponentForkMoves	= [];
+		
 		let possibleOpponentMoves		= this.opponent.getPossibleMoves(this.board, this.opponent);
 		
 		possibleOpponentMoves.forEach((opponentMove) => {
@@ -86,7 +87,7 @@ export default class Move
 			
 		});
 		
-		console.log("Opponent has", possibleOpponentForkMoves.length, "possible forks");
+		// console.log(this.opponent.name + " currently has", possibleOpponentForkMoves.length, "possible forks");
 		
 		// No possible forks to block
 		if(possibleOpponentForkMoves.length == 0)
@@ -101,24 +102,90 @@ export default class Move
 				return true;
 		}
 		
+		// console.log("Opponent" + this.opponent.name + " has possible forks moves", possibleOpponentForkMoves);
+		
 		// Otherwise, the player should block all forks in any way that simultaneously allows them to create two in a row.
-		let currentTwoInARow = this.board.getTwoInARow(this.player);
+		let currentTwoInARow	= this.board.getTwoInARow(this.player);
+		let currentWaysToWin	= this.board.getNumWaysToWin(this.player);
+		
+		let blockAndCreateTwoInARow = false;
+		let blockAndCreateWaysToWin = false;
+		
+		// console.log(this.player.name + " currently has " + currentTwoInARow + " two in a row");
 		
 		possibleOpponentForkMoves.forEach((opponentMove) => {
+			
+			if(this.x != opponentMove.x || this.y != opponentMove.y)
+				return true; // NB: Keep iterating
 			
 			prediction = this.board.clone();
 			prediction.cells[this.x][this.y].state = this.player.figure;
 			
-			if(prediction.getTwoInARow(this.player) > currentTwoInARow)
-				return true;
+			// console.log("Move at", this.x, this.y, "would result in " + this.opponent.name, prediction.getNumWaysToWin(this.opponent), " having ways to win (aka forks?)");
+			
+			// console.log("Move at", this.x, this.y, "would give " + this.player.name, prediction.getTwoInARow(this.player), " two in a row");
+			
+			if(prediction.getTwoInARow(this.player) > currentTwoInARow &&
+				prediction.getNumWaysToWin(this.opponent) < this.board.getNumWaysToWin(this.opponent))
+			{
+				blockAndCreateTwoInARow = true;
+				return false; // NB: Break out of iteration
+			}
+			
+			/*prediction = this.board.clone();
+			prediction.cells[opponentMove.x][opponentMove.y].state = this.player.figure;
+			
+			prediction.log();
+			
+			// console.log("Move at", opponentMove.x, opponentMove.y, "would result in " + this.opponent.name, prediction.getNumWaysToWin(this.opponent), " having ways to win");
+			
+			// console.log("Move at", opponentMove.x, opponentMove.y, "would give " + this.player.name, prediction.getTwoInARow(this.player), " two in a row");
+			
+			// NB: Need to test if opponent now has less forks (eg if this actually blocks forks)
+			
+			if(prediction.getTwoInARow(this.player) > currentTwoInARow && this.x == opponentMove.x && this.y == opponentMove.y)
+			{
+				blockAndCreateTwoInARow = true;
+				return false; // NB: Halt iteration
+			}
+			
+			// console.log("Move at", this.x, this.y, "would give " + this.player.name, prediction.getNumWaysToWin(this.player), " ways to win");
+			
+			if(prediction.getNumWaysToWin(this.player) > currentWaysToWin)
+			{
+				blockAndCreateWaysToWin = true;
+				return false; // NB: Halt iteration
+			}*/
+			
+			/*
+			// TODO: isForking repeated here. Please refactor
+			let predictedWaysToWin;
+			let currentWaysToWin	= this.board.getNumWaysToWin(this.player);
+			
+			predictedWaysToWin		= prediction.getNumWaysToWin(this.player);
+			
+			// console.log("Predicted that player", this.player.name, "would have", predictedWaysToWin, "ways to win after moving at", this.x, this.y);
+			
+			return predictedWaysToWin == 2 && currentWaysToWin < 2;*/
 			
 		});
+		
+		if(blockAndCreateTwoInARow)
+			// console.log("Move at ", this.x, this.y, "would give", this.player.name, " two in a row, and blocks a fork");
+			
+		if(blockAndCreateTwoInARow)
+			// console.log("Move at ", this.x, this.y, "would give", this.player.name, " two in a row, and blocks a fork");
+		
+		if(blockAndCreateWaysToWin || blockAndCreateTwoInARow)
+			return true;
 		
 		// Otherwise, the player should create a two in a row to force the opponent into defending
 		prediction = this.board.clone();
 		prediction.cells[this.x][this.y].state = this.player.figure;
 		
-		console.log(prediction.getTwoInARow(this.player), "predicted two in a rows at ", this.x, this.y, "versus current", currentTwoInARow, "current two in a rows");
+		prediction.log();
+		
+		// console.log(prediction.getTwoInARow(this.player), "predicted two in a rows at ", this.x, this.y, "versus current", currentTwoInARow, "current two in a rows");
 		
 		if(prediction.getTwoInARow(this.player) > currentTwoInARow)
 		{
@@ -163,7 +230,7 @@ export default class Move
 		let oppositeX	= (this.x == 0 ? Board.SIZE - 1 : 0);
 		let oppositeY	= (this.y == 0 ? Board.SIZE - 1 : 0);
 		
-		if(this.board.cells[oppositeX][oppositeY].state == this.opponent.state)
+		if(this.board.cells[oppositeX][oppositeY].state == this.opponent.figure)
 			return true;
 		
 		return false;

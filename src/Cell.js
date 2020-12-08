@@ -11,6 +11,6 @@ export default class Cell
 	}
 }
 
-Cell.STATE_EMPTY		= " ";
+Cell.STATE_EMPTY		= "-";
 Cell.STATE_NAUGHT		= "o";
 Cell.STATE_CROSS		= "x";
